@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Messages</title>
+</head>
+<style>
+    #toast-container {
+        display: none;
+        position: fixed;
+        z-index: 105;
+        height: 80px;
+        width: 380px;
+        bottom: 20px;
+        left: 10px;
+       /* background-color: rgb(87, 218, 107); */
+        border: 2px solid black;
+        border-radius: 14px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    }
+
+    #toast-close {
+        position: absolute;
+        right: 6px;
+
+    }
+
+    .toast {
+        padding: 16px 10px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+   
+
+
+    .toast-message {
+        text-wrap: wrap;
+    }
+</style>
+
+<body>
+    <div id="toast-container"></div>
+
+</body>
+<script>
+    
+
+    function showToast(message , type){
+        const toast_container=document.getElementById("toast-container");
+        if(type=="success") toast_container.style.background="rgb(21 255 151)";
+        else if(type=="error") toast_container.style.background="rgb(255 89 82)";
+        else toast_container.style.background="rgb(247 219 76)";
+        toast_container.innerHTML=`<div id="toast-close" style="cursor:pointer;" onclick="closeToast()" >
+            <img style="filter: invert(1); height: 20px;" src="/public/images/close.svg">
+        </div>
+        <div class="toast">
+            <div class="toast-icon">X
+
+            </div>
+            <div class="toast-message">
+                ${message}
+            </div>
+        </div>`;
+        toast_container.style.display="inline-block";
+        // setTimeout(()=>{
+        //     toast_container.style.display="none";
+        // } , 4000)
+        
+    }
+    function closeToast(){
+        document.getElementById("toast-container").style.display="none";
+    }
+    showToast("Hi i am new toast" , "success");
+</script>
+
+</html>
