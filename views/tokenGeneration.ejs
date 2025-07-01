@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Generate Token</title>
+  <link rel="stylesheet" href="/styles/main.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 60vw;
+      background-color: #2c3e50;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      position: absolute;
+      left: -100%;
+      top: 0;
+      font-size: xx-large;
+      transition: all 0.5s ease;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      color: white;
+      display: block;
+      margin-bottom: 30px;
+      text-decoration: none;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .search-bar {
+      margin-bottom: 1rem;
+    }
+
+    .store-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .store-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      background-color: #f9f9f9;
+    }
+
+    .store-card h3 {
+      margin-top: 0;
+    }
+
+    .qr-section {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-top: 1px solid #ccc;
+      margin-bottom: 75px;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      background-color: #2e89ff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #1a6dd1;
+    }
+
+    #scanner-container {
+      display: none;
+      position: fixed;
+      inset: 0;
+
+      z-index: 1000;
+      /* //  display: flex; */
+      justify-content: center;
+      align-items: center;
+    }
+
+    #reader-wrapper {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      width: 90vw;
+      max-width: 500px;
+      aspect-ratio: 1 / 1;
+      /* Ensures square layout */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #reader {
+      width: 100%;
+      height: 100%;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .app {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      align-items: center;
+      padding-right: 20px;
+    }
+
+    #ham {
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 119px;
+      padding-bottom: 58px;
+
+    }
+
+    /* toast part */
+     #toast-container {
+        display: none;
+        position: fixed;
+        z-index: 105;
+        height: 80px;
+        width: 380px;
+        bottom: 20px;
+        left: 10px;
+        border-radius: 14px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    }
+
+    #toast-close {
+        position: absolute;
+        right: 6px;
+
+    }
+
+    .toast {
+        padding: 16px 10px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+   
+    .toast-message {
+        text-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>User Dashboard</h2>
+      <div id="cancelSidebar-button">
+        <img src="/images/close.svg" style="height: 45px; cursor: pointer;" alt="close">
+
+
+      </div>
+    </div>
+
+    <a href="/user">Dashboard</a>
+    <a href="/auth/logout">Logout</a>
+    <a href="/user/token-history">Token History</a>
+  </div>
+
+  <div class="main-content">
+    <div class="nav">
+      <div id="ham">
+        <svg width="30" height="30" viewBox="0 0 100 80" fill="#2c3e50" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="10" rx="6"></rect>
+          <rect y="30" width="100" height="10" rx="6"></rect>
+          <rect y="60" width="100" height="10" rx="6"></rect>
+        </svg>
+      </div>
+      <div class="app">
+        <h3>Smart Queue Management</h3>
+        <a href="/user"><img src="/images/home.svg" style="height: 45px;" alt="home"></a>
+      </div>
+    </div>
+    <h1>Book a Token</h1>
+    <!-- QR Section -->
+    <div class="qr-section">
+      <h2>Scan QR Code at Store</h2>
+      <p>If you're at the store, scan the QR code displayed there using the app or your camera to book a token
+        instantly.
+      </p>
+
+      <button class="btn btn-primary" onclick="startScanner()">📷 Scan QR Code</button>
+      <div id="scanner-container">
+        <div id="reader-wrapper">
+          <div id="reader"></div>
+        </div>
+        <button class="btn btn-danger mt-2" onclick="stopScanner()">Close Scanner</button>
+      </div>
+    </div>
+
+    <h2>OR</h2>
+    <!-- Search by store section -->
+    <div class="search-bar">
+      <h2>Search Store Name to Book Token</h2>
+      <input type="text" id="searchInput" placeholder="Search by store name..." onkeyup="filterStores()" />
+    </div>
+
+    <div class="store-list" id="storeList">
+      <% stores.forEach(store=> { %>
+        <div class="store-card">
+          <h3>
+            <%= store.name %>
+          </h3>
+          <p><strong>Address:</strong>
+            <%= store.address || 'N/A' %>
+          </p>
+          <p><strong>Contact:</strong>
+            <%= store.contact || 'N/A' %>
+          </p>
+
+          <!-- <input type="hidden" name="storeId" value="<%= store._id %>" /> -->
+          <!-- <button type="submit" class="btn">Book Token</button> -->
+          <button class="btn" onclick="confirmBooking('<%= store._id %>')">Book Token</button>
+
+
+
+          <div id="confirmationModal"
+            style="display:none; position:fixed; inset:0; background:#00000080; z-index:100;  justify-content:center; align-items:center;">
+            <div style="background:white; padding:2rem; border-radius:8px; max-width:400px;">
+              <h2>Confirm Booking</h2>
+              <p><strong>Store:</strong> <span id="storeName"></span></p>
+              <p><strong>Address:</strong> <span id="storeAddress"></span></p>
+              <p><strong>Contact:</strong> <span id="storeContact"></span></p>
+              <form id="confirmForm" method="POST" action="/user/generate-token">
+                <input type="hidden" name="storeId" id="confirmStoreId" />
+                <button type="submit" class="btn">Confirm</button>
+                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script>
+
+    //***********************************
+
+    const sidebar = document.querySelector(".sidebar");
+    document.getElementById("ham").addEventListener("click", () => {
+      console.log("hamburger button clicked");
+      sidebar.style.left = 0;
+
+    })
+    document.getElementById("cancelSidebar-button").addEventListener("click", () => {
+      sidebar.style.left = "-100%";
+    })
+
+
+    //***********************************
+
+
+    function filterStores() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.store-card');
+      cards.forEach(card => {
+        const name = card.querySelector('h3').innerText.toLowerCase();
+        card.style.display = name.includes(input) ? '' : 'none';
+      });
+    }
+
+    async function confirmBooking(storeId) {
+      try {
+        const response = await fetch(`/api/store/${storeId}`);
+        const store = await response.json();
+        //console.log("error from store Id Api ,",   store);
+
+        document.getElementById("storeName").textContent = store.name;
+        document.getElementById("storeAddress").textContent = store.address || "N/A";
+        document.getElementById("storeContact").textContent = store.contact || "N/A";
+
+        document.getElementById("confirmStoreId").value = storeId;
+        document.getElementById("confirmationModal").style.display = "flex";
+      } catch (err) {
+        alert("Failed to fetch store details.");
+        console.error(err);
+      }
+    }
+    function closeModal() {
+      document.getElementById("confirmationModal").style.display = "none";
+    }
+
+    function handleScanSuccess(text) {
+      const url = new URL(text);
+      const storeId = url.searchParams.get("q");
+      if (!storeId) {
+        console.log("Invalid Store or Store Not found");
+        showToast("Invalid Store or Store Not found",0);
+        return;
+      }
+      confirmBooking(storeId);
+     
+    }
+
+    let scanner;
+    function startScanner() {
+      document.getElementById("scanner-container").style.display = "flex";
+      scanner = new Html5Qrcode("reader");
+      scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 400 },
+        (decodedText, decodedResult) => {
+          console.log("Scanned", decodedText, "decoded Result", decodedResult);
+          handleScanSuccess(decodedText);
+          stopScanner();
+        },
+        (error) => {
+          console.warn("QR scan error", error);
+        }
+      ).catch(error => {
+        alert("Camera permission denied or error: " + error);
+      });
+
+    }
+    function stopScanner() {
+      if (scanner) {
+        scanner.stop().then(() => {
+          scanner.clear();
+          document.getElementById("scanner-container").style.display = "none";
+        }).catch(errr => {
+          console.log("error", errr);
+        });
+      }
+    }
+
+    // toast part
+    function showToast(message , type){
+        const toast_container=document.getElementById("toast-container");
+        if(type==1) toast_container.style.background="rgb(21 255 151)";
+        else if(type==0) toast_container.style.background="rgb(255 89 82)";
+        else toast_container.style.background="rgb(247 219 76)";
+        toast_container.innerHTML=`<div id="toast-close" style="cursor:pointer; "  onclick="closeToast()" >
+            <img style="filter: invert(1); height: 20px;" src="/images/close.svg">
+        </div>
+        <div class="toast">
+            <div class="toast-icon">X
+
+            </div>
+            <div class="toast-message">
+                ${message}
+            </div>
+        </div>`;
+        toast_container.style.display="inline-block";
+        setTimeout(()=>{
+            toast_container.style.display="none";
+        } , 4000)
+        
+    }
+    function closeToast(){
+        document.getElementById("toast-container").style.display="none";
+    }
+
+    //toast part
+
+
+  </script>
+</body>
+
+</html>

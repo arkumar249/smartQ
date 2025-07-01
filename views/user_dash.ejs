@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>
+    <%= title %>
+  </title>
+  <link rel="stylesheet" href="/styles/dashboard.css"> <!-- optional -->
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 60vw;
+      background-color: #2c3e50;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      position: absolute;
+      left: -100%;
+      font-size: xx-large;
+      transition: all 0.5s ease;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      color: white;
+      display: block;
+      margin-bottom: 30px;
+      text-decoration: none;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .main-content h1 {
+      font-size: xx-large;
+    }
+
+    .card {
+      width: 90vw;
+      background-color: #f4f4f4;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      font-size: xx-large;
+    }
+
+    .store-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .store-item {
+      background-color: white;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #2980b9;
+    }
+
+    .token-box {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .no-token {
+      color: #666;
+      font-style: italic;
+    }
+
+    .delete-btn {
+      margin-top: 15px;
+      padding: 8px 14px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .app {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      align-items: center;
+      padding-right: 20px;
+    }
+
+    #ham {
+      display: inline-block;
+      cursor: pointer;
+    }
+
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 119px;
+      padding-bottom: 58px;
+
+    }
+
+
+    #token-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+      font-size: large;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    }
+
+    #close-popup {
+      margin-top: 15px;
+      background-color: #3498db;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #prescriptionModal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    #closePrescriptionModal {
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+
+    #presModalImage {
+      max-width: 90vw;
+      max-height: 80vh;
+      border: 3px solid white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>User Dashboard</h2>
+      <div id="cancelSidebar-button">
+        <img src="/images/close.svg" style="height: 45px; cursor: pointer;" alt="close">
+
+
+      </div>
+    </div>
+
+    <a href="/user">Dashboard</a>
+    <a href="/auth/logout">Logout</a>
+    <a href="/user/token-history">Token History</a>
+  </div>
+
+
+  <div class="main-content">
+    <div class="nav">
+      <div id="ham">
+        <svg width="30" height="30" viewBox="0 0 100 80" fill="#2c3e50" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="10" rx="6"></rect>
+          <rect y="30" width="100" height="10" rx="6"></rect>
+          <rect y="60" width="100" height="10" rx="6"></rect>
+        </svg>
+      </div>
+      <div class="app">
+        <h3>Smart Queue Management</h3>
+        <a href="/user"><img src="/images/home.svg" style="height: 45px;" alt="home"></a>
+      </div>
+    </div>
+    <h1>Welcome, <%= user.name %>!</h1>
+
+    <% if (locals.user.ActiveToken) { %>
+      <% const userToken=locals.userToken %>
+        <!-- Active Token Section -->
+        <div class="card">
+          <h3>Your Active Token</h3>
+          <div id="active_token" class="token-box">
+            <p><strong>Token Number:</strong> <span id="tokenNumber">
+                <%= userToken.tokenNumber %>
+              </span></p>
+            <p><strong>Store:</strong> <span id="storeName">
+                <%= userToken.store.name %>
+              </span></p>
+            <p><strong>Status:</strong> <span id="tokenStatus">
+                <%= userToken.status %>
+              </span></p>
+            <p><strong>Position:</strong> <span id="tokenPosition">...</span></p>
+            <p><strong>Estimated Wait Time:</strong> <span id="estimatedTime">...</span> minutes</p>
+          </div>
+          <form action="user/token-delete" method="POST"> <button class="delete-btn">Delete Token</button></form>
+          <% if (!userToken.prescription.uploaded) { %>
+            <button class="upload-prescription">upload Prescription</button>
+            <% } %>
+              <!-- <label>See Out of Stock</label> -->
+              <button id="see">See Out of Stock</button>
+        </div>
+
+
+        <% if (!userToken.prescription.uploaded) { %>
+          <div class="upload card">
+            <form action="/user/upload-prescription/<%= userToken._id%>" method="POST" enctype="multipart/form-data">
+              <label for="file">Prescription Image:</label>
+              <input type="file" name="prescription" required />
+              <button type="submit">UPLOAD</button>
+            </form>
+
+          </div>
+          <% } else { %>
+            <% const presURL= userToken.prescription.imageUrl %>
+            <button onclick="openModal('<%=userToken.prescription.imageUrl%>')">Prescription</button>
+            <% } %>
+
+              <!-- No Active Token -->
+              <% } else { %>
+
+                <div class="card">
+                  <h3>No Active Tokens</h3>
+                  <p class="no-token">You currently have no active tokens.</p>
+                  <form action="/user/token" method="get">
+                    <button class="btn">Book Token</button>
+                  </form>
+                  <p>Select a store below to generate a new token:</p>
+
+
+
+                  <!-- List of stores -->
+                  <ul class="store-list">
+                    <% locals.stores.forEach(store=> { %>
+                      <li class="store-item">
+                        <div>
+                          <strong>
+                            <%= store.name %>
+                          </strong><br>
+                          <span>
+                            <%= store.address %>
+                          </span>
+                        </div>
+                        <form action="/user/generate-token?q=<%= store._id %>" method="POST">
+                          <input type="hidden" name="storeId" value="<%= store._id %>">
+                          <button class="btn" type="submit">Generate Token</button>
+                        </form>
+                      </li>
+                      <% }) %>
+                  </ul>
+                </div>
+                <% } %>
+  </div>
+
+
+
+
+
+
+  <div id="token-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>🔔 Token Alert</h3>
+      <p id="popup-message">Your token is about to be called!</p>
+      <button id="close-popup">Close</button>
+    </div>
+  </div>
+
+  <!-- Prescription Modal -->
+  <div id="prescriptionModal">
+    <div style="position: relative;">
+      <img id="presModalImage" src="" alt="Prescription" />
+      <button id="closePrescriptionModal" onclick="closeModal()">X</button>
+    </div>
+  </div>
+
+
+  <audio id="notify" src="/sound/notify.m4a" preload="auto"></audio>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+
+    //***********************************
+    function showPopup(message, reload = false) {
+      console.log("ShowPopup is working.");
+      const popup = document.getElementById("token-popup");
+      const message_box = document.getElementById("popup-message");
+      message_box.innerText = message;
+      popup.style.display = "flex";
+      const audio = document.getElementById("notify");
+      audio.muted = false;
+      audio.play();
+      toReload = reload;
+    }
+    document.getElementById("close-popup").addEventListener("click", () => {
+      document.getElementById("token-popup").style.display = "none";
+      if (toReload) {
+        location.reload();
+      }
+    })
+
+    function openModal(imageUrl) {
+    document.getElementById('presModalImage').src = imageUrl;
+    document.getElementById('prescriptionModal').style.display = 'flex';
+  }
+
+
+  function closeModal() {
+    document.getElementById('prescriptionModal').style.display = 'none';
+    document.getElementById('presModalImage').src = "";
+  }
+
+
+
+
+    let toReload = false;
+    let audioPermission = false;
+    document.addEventListener("click", () => {
+      const audio = document.getElementById("notify");
+      if (!audioPermission) {
+        audioPermission = true;
+        console.log("hey there");
+        audio.muted = true;
+        audio.play();
+      }
+    })
+    const sidebar = document.querySelector(".sidebar");
+    console.log("dom loaded");
+    document.getElementById("ham").addEventListener("click", () => {
+      console.log("hamburger button clicked");
+      sidebar.style.left = 0;
+
+    })
+    document.getElementById("cancelSidebar-button").addEventListener("click", () => {
+      sidebar.style.left = "-100%";
+    })
+
+
+
+    //***********************************
+
+
+    //**************************** queue related ******************************
+    const userId = "<%= locals.user._id %>";
+    let curr;
+    const socket = io();
+    curr = "<%=JSON.stringify(locals.userToken)%>";
+    socket.onAny((event, ...args) => {
+      console.log(`📨 Received event: ${event}`, args);
+    });
+    socket.emit("join-user", userId);
+
+
+    const userToken =  <%- JSON.stringify(locals.userToken || null) %>;
+    if (userToken) {
+      updateTokenStatus();
+    }
+
+    async function updateTokenStatus() {
+      try {
+        const res = await fetch(`/api/token-status/${userToken._id}`);
+        const data = await res.json();
+
+        document.getElementById("tokenStatus").innerText = data.status;
+        document.getElementById("tokenPosition").innerText = data.currentPosition;
+        document.getElementById("estimatedTime").innerText = data.estimatedWaitTime;
+
+        console.log("✅ Token status updated:", data);
+      } catch (err) {
+        console.error("❌ Error updating token status:", err);
+      }
+    }
+
+
+
+    //socket.emit("join-store", curr.store._id);
+    // Listen for token status update
+    socket.on("userTokenStatusChanged", (data) => {
+      if (data.userId == userId) {
+        console.log("**************Token status update received from admin:", data);
+        showPopup(`Hello User!! Your Token is ${data.status}.`, true);
+        //alert(`🔔 Your token status: ${data.status}`);
+
+
+      }
+    });
+
+    // this event is helpful in sending messages to user when their turn is near
+    socket.on("queuePositionUpdate", (data) => {
+      //alert(`🔔 Your token status changed: ${data.position} , estimatedWaitTime : ${data.estimatedWaitTime}`);
+      console.log(`🔔 Your token status changed: ${data.position} , estimatedWaitTime : ${data.estimatedWaitTime}`);
+      document.getElementById("tokenPosition").innerText = data.position;
+      document.getElementById("estimatedTime").innerText = data.estimatedWaitTime;
+      if (data.position <= 3) {
+        showPopup(`Hey User!! Your token is near, Position: ${data.position} Est. Wait: ${data.estimatedWaitTime}`);
+      }
+    })
+
+
+
+
+  </script>
+
+</body>
+
+</html>
