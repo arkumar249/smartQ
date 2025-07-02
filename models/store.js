@@ -35,6 +35,7 @@ const storeSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
+    outOfStock:[{type:String}],
     allTokens: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Token' }],
     lastQueueReset:{
         type:Date, 
