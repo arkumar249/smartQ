@@ -16,6 +16,7 @@ const {updateAllTokenHolder}=require("../utils/queueUpdate");
 
 router.get('/', async (req, res) => {
   const user = req.user;
+  const uploadSuccess= req.query.uploadSuccess==='true';
   let userToken;
   if(user.ActiveToken){
     userToken=await Token.findOne({user:user._id , status:"active"}).populate("user store");
@@ -25,7 +26,8 @@ router.get('/', async (req, res) => {
     title: 'User Dashboard',
     user,
     stores,
-    userToken
+    userToken,
+    uploadSuccess
 
   });
 });
@@ -167,7 +169,7 @@ router.post("/upload-prescription/:tokenId" ,upload.single("prescription") , asy
         return res.status(404).json({error: "token not found"});
       }
       console.log("file uploaded successfully." , req.file)
-      return res.status(200).json({message:"file uploaded successfully."});
+      return res.redirect("/user?uploadSuccess=true");
       
     }
     catch(err){
