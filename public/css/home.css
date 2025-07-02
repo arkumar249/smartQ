@@ -1,0 +1,164 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff;
+    color: #333;
+}
+
+header.hero {
+    background-color: #abd3fa;
+    color:#004ffb;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1rem 2rem 1rem;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    gap: 2rem;
+}
+
+.hero-content {
+    flex: 1 1 320px;
+    min-width: 260px;
+}
+
+.hero-img {
+    flex: 1 1 180px;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+header.hero .tagline {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+header.hero .intro {
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto 2rem auto;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn {
+    background-color: white;
+    color: #026fec;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn:hover {
+    background-color: #357ABD;
+    color: white;
+}
+
+.features {
+    padding: 2rem 1rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    text-align: center;
+}
+
+.features h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.feature-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    flex: 1 1 250px;
+    max-width: 300px;
+    font-weight: 600;
+    color: #0069e1;
+}
+
+.benefits {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 2rem auto 4rem auto;
+    padding: 0 1rem;
+    flex-wrap: wrap;
+}
+
+.benefit-card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 2rem;
+    flex: 1 1 300px;
+    max-width: 400px;
+    color: #333;
+    text-align: center;
+}
+
+.benefit-card h3 {
+    color: #4a90e2;
+    margin-bottom: 1rem;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #e6f0fa;
+    color: #4a90e2;
+    font-weight: 600;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+    header.hero {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .features, .benefits {
+        flex-direction: column;
+        margin: 1rem auto;
+    }
+
+    .feature-cards {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .benefits {
+        gap: 1rem;
+    }
+}
