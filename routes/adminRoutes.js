@@ -14,12 +14,12 @@ const {updateAllTokenHolder}=require("../utils/queueUpdate");
 router.get('/',  async (req, res) => {
   try {
     const store = await Store.findOne({ admin: req.user._id });
-    console.log("store" , store);
+   // console.log("store" , store);
     let tokens = [];
 
     if (store) {
       tokens = await Token.find({ store: store._id }).populate('user');
-      console.log(tokens);
+    //  console.log(tokens);
     }
 
     res.render('adminDashboard', {
@@ -36,7 +36,7 @@ router.get('/',  async (req, res) => {
 // Add Store
 router.post('/add-store',  async (req, res) => {
   const { name, address, contact } = req.body;
-console.log("POST /add-store without auth");
+//console.log("POST /add-store without auth");
   await Store.create({
     name,
     address,
@@ -65,15 +65,10 @@ router.post('/update-token/:id',  async (req, res) => {
       $set:{ActiveToken:false}
     })
 
-  // if(token){
-  //   // io.to(token.store._id.toString()).emit("tokenStatusChanged" , {  // might remove 
-  //   //   storeId:token.store._id,
-  //   //   tokenId:token._id
-  //   // })
-  // }
+ 
   await updateAllTokenHolder(token.store);
   if(token.user){  // it will go to only one user whose status is change
-     console.log("*****************this user token status sent from admin")
+    // console.log("*****************this user token status sent from admin")
     io.to(token.user.toString()).emit("userTokenStatusChanged" , {
      
       userId:token.user,
