@@ -50,7 +50,7 @@
         <div id="reader-wrapper">
           <div id="reader"></div>
         </div>
-        <button class="btn btn-danger mt-2" onclick="stopScanner()">Close Scanner</button>
+        <button class="btn btn-danger closeScanner mt-2" onclick="stopScanner()">Close Scanner</button>
       </div>
     </div>
 
@@ -185,9 +185,10 @@
     }
     function stopScanner() {
       if (scanner) {
+        document.getElementById("scanner-container").style.display = "none";
         scanner.stop().then(() => {
           scanner.clear();
-          document.getElementById("scanner-container").style.display = "none";
+          //document.getElementById("scanner-container").style.display = "none";
         }).catch(errr => {
           console.log("error", errr);
         });
