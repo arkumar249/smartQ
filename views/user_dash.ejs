@@ -8,205 +8,422 @@
   </title>
   <link rel="stylesheet" href="/styles/dashboard.css"> <!-- optional -->
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      display: flex;
-    }
+    :root {
+  --primary: #2563eb;
+  --primary-dark: #1746a0;
+  --secondary: #f0f8ff;
+  --accent: #3498db;
+  --danger: #e74c3c;
+  --danger-dark: #c0392b;
+  --sidebar-bg: #2563eb;
+  --sidebar-text: #fff;
+  --card-bg: #fff;
+  --card-radius: 18px;
+  --shadow: 0 4px 16px rgba(37,99,235,0.08);
+}
 
-    .sidebar {
-      width: 60vw;
-      background-color: #2c3e50;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      position: absolute;
-      left: -100%;
-      font-size: xx-large;
-      transition: all 0.5s ease;
-    }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  background: var(--secondary);
+  min-height: 100vh;
+  display: flex;
+}
 
-    .sidebar h2 {
-      margin-bottom: 30px;
-    }
+.sidebar {
+  width: 260px;
+  max-width: 80vw;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  height: 100vh;
+  padding: 30px 24px 24px 24px;
+  position: fixed;
+  left: -100%;
+  top: 0;
+  font-size: 1.2rem;
+  border-top-right-radius: var(--card-radius);
+  border-bottom-right-radius: var(--card-radius);
+  box-shadow: var(--shadow);
+  transition: left 0.4s cubic-bezier(.4,2.08,.55,.44);
+  z-index: 200;
+}
 
-    .sidebar a {
-      color: white;
-      display: block;
-      margin-bottom: 30px;
-      text-decoration: none;
-      cursor: pointer;
-      z-index: 10;
-    }
+.sidebar h2 {
+  margin-bottom: 30px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #fff;
+}
 
-    .main-content {
-      flex: 1;
-      padding: 20px;
-    }
+.sidebar a {
+  color: #fff;
+  display: block;
+  margin-bottom: 28px;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 8px 10px;
+  transition: background 0.2s;
+}
 
-    .main-content h1 {
-      font-size: xx-large;
-    }
+.sidebar a:hover {
+  background: rgba(255,255,255,0.10);
+}
 
-    .card {
-      width: 90vw;
-      background-color: #f4f4f4;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      font-size: xx-large;
-    }
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  margin-bottom: 32px;
+}
 
-    .store-list {
-      list-style: none;
-      padding: 0;
-    }
+#cancelSidebar-button img {
+  height: 32px;
+  cursor: pointer;
+  filter: invert(1);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+#cancelSidebar-button img:hover {
+  opacity: 1;
+}
 
-    .store-item {
-      background-color: white;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-    }
+.main-content {
+  flex: 1;
+  padding: 32px 5vw 32px 5vw;
+  margin-left: 0;
+  min-width: 0;
+  transition: margin-left 0.4s;
+}
 
-    .btn {
-      padding: 6px 12px;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
 
-    .btn:hover {
-      background-color: #2980b9;
-    }
+.app {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  padding-right: 10px;
+}
 
-    .token-box {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 12px;
-    }
+.app h3 {
+  color: var(--primary);
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+  letter-spacing: -1px;
+}
 
-    .no-token {
-      color: #666;
-      font-style: italic;
-    }
+.app a img {
+  height: 36px;
+  filter: brightness(0.9) saturate(1.2);
+}
 
-    .delete-btn {
-      margin-top: 15px;
-      padding: 8px 14px;
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+#ham {
+  display: inline-block;
+  cursor: pointer;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 5px;
+  transition: box-shadow 0.2s;
+}
+#ham:hover {
+  box-shadow: 0 2px 8px rgba(37,99,235,0.15);
+}
 
-    .delete-btn:hover {
-      background-color: #c0392b;
-    }
+.main-content h1 {
+  font-size: 2rem;
+  color: var(--primary);
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
 
-    .nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.card {
+  width: 100%;
+  max-width: 700px;
+  background-color: var(--card-bg);
+  padding: 24px 20px 20px 20px;
+  margin-bottom: 28px;
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow);
+  font-size: 1.1rem;
+}
 
-    .app {
-      display: flex;
-      gap: 40px;
-      justify-content: center;
-      align-items: center;
-      padding-right: 20px;
-    }
+.card h3 {
+  color: var(--primary);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
 
-    #ham {
-      display: inline-block;
-      cursor: pointer;
-    }
+.token-box {
+  background-color: #f7fbff;
+  border: 1.5px solid #dbeafe;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 1.2rem;
+}
+
+.no-token {
+  color: #888;
+  font-style: italic;
+  margin-bottom: 1.2rem;
+}
+
+.store-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.store-item {
+  background-color: #f7fbff;
+  padding: 12px 16px;
+  margin: 10px 0;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.store-item strong {
+  color: var(--primary);
+}
+
+.btn, button[type="submit"], .delete-btn, #see, .upload-prescription {
+  padding: 8px 18px;
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+  margin: 6px 0 0 0;
+  display: inline-block;
+}
+
+.btn:hover, button[type="submit"]:hover, #see:hover, .upload-prescription:hover {
+  background: var(--primary-dark);
+  opacity: 0.95;
+}
+
+.delete-btn {
+  background: var(--danger);
+  margin-top: 15px;
+}
+.delete-btn:hover {
+  background: var(--danger-dark);
+}
+
+.upload.card {
+  background: #f7fbff;
+  border: 1.5px solid #dbeafe;
+  border-radius: 10px;
+  margin-top: 20px;
+  padding: 18px 12px;
+  box-shadow: none;
+}
+
+.upload.card label {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.upload.card input[type="file"] {
+  margin: 10px 0;
+}
+
+.popup-overlay, #token-popup {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: #fff;
+  padding: 32px 18px 22px 18px;
+  border-radius: 14px;
+  text-align: center;
+  width: 320px;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow);
+}
+
+#close-popup {
+  margin-top: 18px;
+  background-color: var(--primary);
+  color: white;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+#close-popup:hover {
+  background: var(--primary-dark);
+}
+
+#prescriptionModal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+#closePrescriptionModal {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  z-index: 10001;
+}
+#closePrescriptionModal:hover {
+  background: var(--danger-dark);
+}
+
+#presModalImage {
+  max-width: 90vw;
+  max-height: 80vh;
+  border: 3px solid white;
+  border-radius: 12px;
+}
+.custom-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.45);
+  display: none; /* Set to flex when shown */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.custom-modal .modal-content {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.08);
+  padding: 2rem 1.2rem 1.2rem 1.2rem;
+  width: 90vw;
+  max-width: 340px;
+  text-align: center;
+  position: relative;
+}
+
+.custom-modal h2 {
+  margin-top: 0;
+  color: #2563eb;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1.2rem;
+}
+
+.custom-modal ul {
+  list-style: disc inside;
+  padding-left: 0;
+  margin: 0 0 1.2rem 0;
+  color: #2563eb;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.custom-modal li {
+  margin-bottom: 0.5rem;
+  background: #f0f8ff;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+}
+
+.custom-modal p {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.modal-close-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 0;
+  font-size: 1rem;
+  font-weight: bold;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+}
+
+.modal-close-btn:hover {
+  background: #1746a0;
+}
 
 
-    .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 119px;
-      padding-bottom: 58px;
 
-    }
+/* toast part */
+#toast-container {
+  display: none;
+  position: fixed;
+  z-index: 105;
+  height: 60px;
+  width: 90vw;
+  max-width: 340px;
+  bottom: 20px;
+  left: 5vw;
+  border-radius: 14px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: var(--shadow);
+}
+
+#toast-close {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+}
+
+.toast {
+  padding: 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.toast-message {
+  word-break: break-word;
+  font-size: 1rem;
+}
 
 
-    #token-popup {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-    }
-
-    .popup-content {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      text-align: center;
-      width: 300px;
-      font-size: large;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
-    }
-
-    #close-popup {
-      margin-top: 15px;
-      background-color: #3498db;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #prescriptionModal {
-      display: none;
-      position: fixed;
-      z-index: 9999;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    #closePrescriptionModal {
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      background: red;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 4px;
-    }
-
-    #presModalImage {
-      max-width: 90vw;
-      max-height: 80vh;
-      border: 3px solid white;
-    }
   </style>
+  
 </head>
 
 <body>
@@ -261,11 +478,9 @@
             <p><strong>Estimated Wait Time:</strong> <span id="estimatedTime">...</span> minutes</p>
           </div>
           <form action="user/token-delete" method="POST"> <button class="delete-btn">Delete Token</button></form>
-          <% if (!userToken.prescription.uploaded) { %>
-            <button class="upload-prescription">upload Prescription</button>
-            <% } %>
+         
               <!-- <label>See Out of Stock</label> -->
-              <button id="see">See Out of Stock</button>
+              <button id="see" onclick="openViewModal()">See Out of Stock</button>
         </div>
 
 
@@ -280,7 +495,7 @@
           </div>
           <% } else { %>
             <% const presURL= userToken.prescription.imageUrl %>
-            <button onclick="openModal('<%=userToken.prescription.imageUrl%>')">Prescription</button>
+            <button class="btn" id="seePres" onclick="openModal('<%=userToken.prescription.imageUrl%>')">Prescription</button>
             <% } %>
 
               <!-- No Active Token -->
@@ -341,6 +556,26 @@
   </div>
 
 
+  <div id="viewStockModal" class="custom-modal">
+  <div class="modal-content">
+    <h2>Out-of-Stock Medicines</h2>
+    <% if (userToken && userToken.store.outOfStock.length > 0) { %>
+      <ul>
+        <% userToken.store.outOfStock.forEach(med => { %>
+          <li><%= med %></li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p>No medicines currently marked out-of-stock.</p>
+    <% } %>
+    <button class="modal-close-btn" onclick="closeViewModal()">Close</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+
+
   <audio id="notify" src="/sound/notify.m4a" preload="auto"></audio>
 
 
@@ -377,8 +612,13 @@
     document.getElementById('presModalImage').src = "";
   }
 
-
-
+  //  out of stock modal view
+  function openViewModal() {
+  document.getElementById("viewStockModal").style.display = "flex";
+}
+function closeViewModal() {
+  document.getElementById("viewStockModal").style.display = "none";
+}
 
     let toReload = false;
     let audioPermission = false;
@@ -439,15 +679,44 @@
     }
 
 
+    // toast messages
+    function showToast(message , type){
+        const toast_container=document.getElementById("toast-container");
+        if(type==1) toast_container.style.background="rgb(21 255 151)";
+        else if(type==0) toast_container.style.background="rgb(255 89 82)";
+        else toast_container.style.background="rgb(247 219 76)";
+        toast_container.innerHTML=`<div id="toast-close" style="cursor:pointer; "  onclick="closeToast()" >
+            <img style="filter: invert(1); height: 20px;" src="/images/close.svg">
+        </div>
+        <div class="toast">
+            <div class="toast-icon">
 
-    //socket.emit("join-store", curr.store._id);
-    // Listen for token status update
+            </div>
+            <div class="toast-message">
+                ${message}
+            </div>
+        </div>`;
+        toast_container.style.display="inline-block";
+        setTimeout(()=>{
+            toast_container.style.display="none";
+        } , 3000)
+        
+    }
+    function closeToast(){
+        document.getElementById("toast-container").style.display="none";
+    }
+    //
+    document.addEventListener("DOMContentLoaded" , ()=>{
+      console.log("i am working");
+      if( "<%=locals.uploadSuccess %>"==='true') showToast("✅Prescription Uploaded Successfully." ,1);
+      
+    })
+
     socket.on("userTokenStatusChanged", (data) => {
       if (data.userId == userId) {
         console.log("**************Token status update received from admin:", data);
         showPopup(`Hello User!! Your Token is ${data.status}.`, true);
-        //alert(`🔔 Your token status: ${data.status}`);
-
+        
 
       }
     });
