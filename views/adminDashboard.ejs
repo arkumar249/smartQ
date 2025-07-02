@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/adminDashboard.css">
+ 
+</head>
+
+<body>
+  <h1>Welcome, <%= user.name %> (Admin)</h1>
+
+  <% if (locals.store) { %>
+    <% const store=locals.store %>
+      <section class="details">
+         <h2>Store Details</h2>
+        <p><strong>Name:</strong>
+          <%= store.name %>
+        </p>
+        <p><strong>Address:</strong>
+          <%= store.address %>
+        </p>
+        <p><strong>Contact:</strong>
+          <%= store.contact %>
+        </p>
+        <button class="btn" onclick="openViewModal()">View Out-of-Stock</button>
+<button class="btn btn-danger" onclick="openEditModal()">Update Out-of-Stock</button>
+
+
+      </section>
+
+      <!-- <section>
+      <h2>Manage Out-of-Stock Medicines</h2>
+      <form action="/admin/update-outofstock" method="POST">
+        <textarea name="outOfStockList" rows="5" placeholder="Enter medicine names, comma-separated"><%= store.outOfStock?.join(", ") || "" %></textarea>
+        <button type="submit">Update</button>
+      </form>
+    </section> -->
+
+      <section>
+        <h1>Admin Token Queue Management</h1>
+
+        <% if (locals.tokens.length> 0) { %>
+          <% const tokens=locals.tokens %>
+            <label>
+              <input type="checkbox" id="toggle-active-only"   />
+              Show only active tokens
+            </label>
+            <div class="token-table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Token #</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Position</th>
+                    <th>Estimated Wait</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="token-table-body">
+                  <% let activeIndex=0; %>
+                    <% tokens.forEach((token, index)=> { %>
+                      <% const isCurrent=token.status==='active' && activeIndex===0; %>
+                        <tr id="row-<%= token._id %>"
+                          class="token-row status-<%= token.status %> <%= isCurrent ? 'current-token' : '' %>">
+                          <td>
+                            <%= token.tokenNumber %>
+                          </td>
+                          <td>
+                            <%= token.user ? token.user.name : 'Unknown' %>
+                          </td>
+                          <td class="status status-<%= token.status %>">
+                            <%= token.status %>
+                          </td>
+                          <td>
+                            <%= token.status==='active' ? ++activeIndex : '-' %>
+                          </td>
+                          <td>
+                            <%= token.status==='active' ? ((activeIndex - 1) * 3) : '-' %> min
+                          </td>
+                          <td>
+                            <% if (token.status==='active' ) { %>
+                              <form method="POST" action="/admin/update-token/<%= token._id %>">
+                                <input type="hidden" name="action" value="complete" />
+                                <button class="btn" type="submit" onclick="this.form.action.value='complete'">Mark
+                                  Completed</button>
+                                <button class="btn btn-danger" type="submit"
+                                  onclick="this.form.action.value='cancelled'">Cancel Token</button>
+                              </form>
+                              <% if (token.prescription.uploaded) { %>
+                                <button  onclick="openModal('<%=token.prescription.imageUrl%>')"  >See Upload</button>
+                                <% } else { %>
+                                      <button>NO upload</button>
+                                  <%}%>
+                               
+                             
+
+                              <% } else { %>
+                                <button class="btn btn-danger" disabled>
+                                  <%= token.status%>
+                                </button>
+                                <% } %>
+                          </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+              </table>
+            </div>
+            <% } else { %>
+              <p>No tokens generated yet.</p>
+              <% } %>
+      </section>
+      <% } else { %>
+        <section>
+          <h2>Add Your Store</h2>
+          <form action="/admin/add-store" method="POST">
+            <input name="name" placeholder="Store Name" required>
+            <input name="address" placeholder="Address">
+            <input name="contact" placeholder="Contact Info">
+            <button type="submit">Add Store</button>
+          </form>
+        </section>
+        <% } %>
+
+
+<!-- Prescription Modal -->
+<div id="prescriptionModal">
+    <div style="position: relative;">
+      <img id="presModalImage" src="" alt="Prescription" />
+      <button id="closePrescriptionModal" onclick="closeModal()">X</button>
+    </div>
+  </div>
+
+  <!-- View Out-of-Stock Modal -->
+<div id="viewStockModal" class="custom-modal">
+  <div class="modal-content">
+    <h2>Out-of-Stock Medicines</h2>
+    <% if (store && store.outOfStock.length > 0) { %>
+      <ul>
+        <% store.outOfStock.forEach(med => { %>
+          <li><%= med %></li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p>No medicines currently marked out-of-stock.</p>
+    <% } %>
+    <button onclick="closeViewModal()">Close</button>
+  </div>
+</div>
+<!-- Edit Out-of-Stock Modal -->
+<div id="editStockModal" class="custom-modal">
+  <div class="modal-content">
+    <h2>Update Out-of-Stock Medicines</h2>
+    <form action="/admin/update-outofstock" method="POST">
+      <textarea name="outOfStockList" rows="5" placeholder="Enter names, comma-separated"></textarea>
+      <br />
+      <button type="submit" class="btn">Update</button>
+      <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const storeId = "<%= locals.store?._id %>";
+  if(storeId) socket.emit("join-store", storeId);
+
+
+  // whene user generates token or cancel its token
+  socket.on("storeQueueUpdate", (data) => {
+    if (data.storeId == storeId) {
+      alert("tokenStatusChanged worked");
+      location.reload();
+    }
+  })
+
+
+  //  modals for out of stock medicines
+  function openViewModal() {
+  document.getElementById("viewStockModal").style.display = "flex";
+}
+function closeViewModal() {
+  document.getElementById("viewStockModal").style.display = "none";
+}
+
+function openEditModal() {
+  document.getElementById("editStockModal").style.display = "flex";
+}
+function closeEditModal() {
+  document.getElementById("editStockModal").style.display = "none";
+}
+
+
+
+
+   function openModal(imageUrl) {
+    document.getElementById('presModalImage').src = imageUrl;
+    document.getElementById('prescriptionModal').style.display = 'flex';
+  }
+
+
+  function closeModal() {
+    document.getElementById('prescriptionModal').style.display = 'none';
+    document.getElementById('presModalImage').src = "";
+  }
+  const toggleCheckBox=document.getElementById("toggle-active-only");
+  const filterRows = () => {
+    const rows = document.querySelectorAll(".token-row");
+    rows.forEach(row => {
+      const isActive = row.classList.contains("status-active");
+      row.style.display = toggleCheckBox.checked ? (isActive ? "" : "none") : "";
+    });
+    
+  };
+  toggleCheckBox.addEventListener("change" , filterRows);
+  window.addEventListener("DOMContentLoaded", () => {
+    const currentRow = document.querySelector(".current-token");
+    if (currentRow) {
+      currentRow.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+  filterRows();
+  
+</script>
+
+</body>
+
+</html>

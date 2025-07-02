@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>
+    <%= title %>
+  </title>
+  <link rel="stylesheet" href="/css/user_dash.css"> 
+  
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>User Dashboard</h2>
+      <div id="cancelSidebar-button">
+        <img src="/images/close.svg" style="height: 45px; cursor: pointer;" alt="close">
+
+
+      </div>
+    </div>
+
+    <a href="/user">Dashboard</a>
+    <a href="/auth/logout">Logout</a>
+    <a href="/user/token-history">Token History</a>
+  </div>
+
+
+  <div class="main-content">
+    <div class="nav">
+      <div id="ham">
+        <svg width="30" height="30" viewBox="0 0 100 80" fill="#2c3e50" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="10" rx="6"></rect>
+          <rect y="30" width="100" height="10" rx="6"></rect>
+          <rect y="60" width="100" height="10" rx="6"></rect>
+        </svg>
+      </div>
+      <div class="app">
+        <h3>Smart Queue Management</h3>
+        <a href="/user"><img src="/images/home.svg" style="height: 45px;" alt="home"></a>
+      </div>
+    </div>
+    <h1>Welcome, <%= user.name %>!</h1>
+
+    <% if (locals.user.ActiveToken) { %>
+      <% const userToken=locals.userToken %>
+        <!-- Active Token Section -->
+        <div class="card">
+          <h3>Your Active Token</h3>
+          <div id="active_token" class="token-box">
+            <p><strong>Token Number:</strong> <span id="tokenNumber">
+                <%= userToken.tokenNumber %>
+              </span></p>
+            <p><strong>Store:</strong> <span id="storeName">
+                <%= userToken.store.name %>
+              </span></p>
+            <p><strong>Status:</strong> <span id="tokenStatus">
+                <%= userToken.status %>
+              </span></p>
+            <p><strong>Position:</strong> <span id="tokenPosition">...</span></p>
+            <p><strong>Estimated Wait Time:</strong> <span id="estimatedTime">...</span> minutes</p>
+          </div>
+          <form action="user/token-delete" method="POST"> <button class="delete-btn">Delete Token</button></form>
+         
+              <!-- <label>See Out of Stock</label> -->
+              <button id="see" onclick="openViewModal()">See Out of Stock</button>
+        </div>
+
+
+        <% if (!userToken.prescription.uploaded) { %>
+          <div class="upload card">
+            <form action="/user/upload-prescription/<%= userToken._id%>" method="POST" enctype="multipart/form-data">
+              <label for="file">Prescription Image:</label>
+              <input type="file" name="prescription" required />
+              <button type="submit">UPLOAD</button>
+            </form>
+
+          </div>
+          <% } else { %>
+            <% const presURL= userToken.prescription.imageUrl %>
+            <button class="btn" id="seePres" onclick="openModal('<%=userToken.prescription.imageUrl%>')">Prescription</button>
+            <% } %>
+
+              <!-- No Active Token -->
+              <% } else { %>
+
+                <div class="card">
+                  <h3>No Active Tokens</h3>
+                  <p class="no-token">You currently have no active tokens.</p>
+                  <form action="/user/token" method="get">
+                    <button class="btn">Book Token</button>
+                  </form>
+                  <p>Select a store below to generate a new token:</p>
+
+
+
+                  <!-- List of stores -->
+                  <ul class="store-list">
+                    <% locals.stores.forEach(store=> { %>
+                      <li class="store-item">
+                        <div>
+                          <strong>
+                            <%= store.name %>
+                          </strong><br>
+                          <span>
+                            <%= store.address %>
+                          </span>
+                        </div>
+                        <form action="/user/generate-token?q=<%= store._id %>" method="POST">
+                          <input type="hidden" name="storeId" value="<%= store._id %>">
+                          <button class="btn" type="submit">Generate Token</button>
+                        </form>
+                      </li>
+                      <% }) %>
+                  </ul>
+                </div>
+                <% } %>
+  </div>
+
+
+
+
+
+
+  <div id="token-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>🔔 Token Alert</h3>
+      <p id="popup-message">Your token is about to be called!</p>
+      <button id="close-popup">Close</button>
+    </div>
+  </div>
+
+  <!-- Prescription Modal -->
+  <div id="prescriptionModal">
+    <div style="position: relative;">
+      <img id="presModalImage" src="" alt="Prescription" />
+      <button id="closePrescriptionModal" onclick="closeModal()">X</button>
+    </div>
+  </div>
+
+
+  <div id="viewStockModal" class="custom-modal">
+  <div class="modal-content">
+    <h2>Out-of-Stock Medicines</h2>
+    <% if (userToken && userToken.store.outOfStock.length > 0) { %>
+      <ul>
+        <% userToken.store.outOfStock.forEach(med => { %>
+          <li><%= med %></li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p>No medicines currently marked out-of-stock.</p>
+    <% } %>
+    <button class="modal-close-btn" onclick="closeViewModal()">Close</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+
+
+  <audio id="notify" src="/sound/notify.m4a" preload="auto"></audio>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+
+    //***********************************
+    function showPopup(message, reload = false) {
+      console.log("ShowPopup is working.");
+      const popup = document.getElementById("token-popup");
+      const message_box = document.getElementById("popup-message");
+      message_box.innerText = message;
+      popup.style.display = "flex";
+      const audio = document.getElementById("notify");
+      audio.muted = false;
+      audio.play();
+      toReload = reload;
+    }
+    document.getElementById("close-popup").addEventListener("click", () => {
+      document.getElementById("token-popup").style.display = "none";
+      if (toReload) {
+        location.reload();
+      }
+    })
+
+    function openModal(imageUrl) {
+    document.getElementById('presModalImage').src = imageUrl;
+    document.getElementById('prescriptionModal').style.display = 'flex';
+  }
+
+
+  function closeModal() {
+    document.getElementById('prescriptionModal').style.display = 'none';
+    document.getElementById('presModalImage').src = "";
+  }
+
+  //  out of stock modal view
+  function openViewModal() {
+  document.getElementById("viewStockModal").style.display = "flex";
+}
+function closeViewModal() {
+  document.getElementById("viewStockModal").style.display = "none";
+}
+
+    let toReload = false;
+    let audioPermission = false;
+    document.addEventListener("click", () => {
+      const audio = document.getElementById("notify");
+      if (!audioPermission) {
+        audioPermission = true;
+        console.log("hey there");
+        audio.muted = true;
+        audio.play();
+      }
+    })
+    const sidebar = document.querySelector(".sidebar");
+    console.log("dom loaded");
+    document.getElementById("ham").addEventListener("click", () => {
+      console.log("hamburger button clicked");
+      sidebar.style.left = 0;
+
+    })
+    document.getElementById("cancelSidebar-button").addEventListener("click", () => {
+      sidebar.style.left = "-100%";
+    })
+
+
+
+    //***********************************
+
+
+    //**************************** queue related ******************************
+    const userId = "<%= locals.user._id %>";
+    let curr;
+    const socket = io();
+    curr = "<%=JSON.stringify(locals.userToken)%>";
+    socket.onAny((event, ...args) => {
+      console.log(`📨 Received event: ${event}`, args);
+    });
+    socket.emit("join-user", userId);
+
+
+    const userToken =  <%- JSON.stringify(locals.userToken || null) %>;
+    if (userToken) {
+      updateTokenStatus();
+    }
+
+    async function updateTokenStatus() {
+      try {
+        const res = await fetch(`/api/token-status/${userToken._id}`);
+        const data = await res.json();
+
+        document.getElementById("tokenStatus").innerText = data.status;
+        document.getElementById("tokenPosition").innerText = data.currentPosition;
+        document.getElementById("estimatedTime").innerText = data.estimatedWaitTime;
+
+        console.log("✅ Token status updated:", data);
+      } catch (err) {
+        console.error("❌ Error updating token status:", err);
+      }
+    }
+
+
+    // toast messages
+    function showToast(message , type){
+        const toast_container=document.getElementById("toast-container");
+        if(type==1) toast_container.style.background="rgb(21 255 151)";
+        else if(type==0) toast_container.style.background="rgb(255 89 82)";
+        else toast_container.style.background="rgb(247 219 76)";
+        toast_container.innerHTML=`<div id="toast-close" style="cursor:pointer; "  onclick="closeToast()" >
+            <img style="filter: invert(1); height: 20px;" src="/images/close.svg">
+        </div>
+        <div class="toast">
+            <div class="toast-icon">
+
+            </div>
+            <div class="toast-message">
+                ${message}
+            </div>
+        </div>`;
+        toast_container.style.display="inline-block";
+        setTimeout(()=>{
+            toast_container.style.display="none";
+        } , 3000)
+        
+    }
+    function closeToast(){
+        document.getElementById("toast-container").style.display="none";
+    }
+    //
+    document.addEventListener("DOMContentLoaded" , ()=>{
+      console.log("i am working");
+      if( "<%=locals.uploadSuccess %>"==='true') showToast("✅Prescription Uploaded Successfully." ,1);
+      
+    })
+
+    socket.on("userTokenStatusChanged", (data) => {
+      if (data.userId == userId) {
+        console.log("**************Token status update received from admin:", data);
+        showPopup(`Hello User!! Your Token is ${data.status}.`, true);
+        
+
+      }
+    });
+
+    // this event is helpful in sending messages to user when their turn is near
+    socket.on("queuePositionUpdate", (data) => {
+      //alert(`🔔 Your token status changed: ${data.position} , estimatedWaitTime : ${data.estimatedWaitTime}`);
+      console.log(`🔔 Your token status changed: ${data.position} , estimatedWaitTime : ${data.estimatedWaitTime}`);
+      document.getElementById("tokenPosition").innerText = data.position;
+      document.getElementById("estimatedTime").innerText = data.estimatedWaitTime;
+      if (data.position <= 3) {
+        showPopup(`Hey User!! Your token is near, Position: ${data.position} Est. Wait: ${data.estimatedWaitTime}`);
+      }
+    })
+
+
+
+
+  </script>
+
+</body>
+
+</html>

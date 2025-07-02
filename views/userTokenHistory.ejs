@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>
+    Token History
+  </title>
+  <link rel="stylesheet" href="/css/userTokenHistory.css"> 
+
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>User Dashboard</h2>
+      <div id="cancelSidebar-button">
+        <img src="/images/close.svg" style="height: 45px; cursor: pointer;" alt="close">
+
+
+      </div>
+    </div>
+
+    <a href="/user">Dashboard</a>
+    <a href="/auth/logout">Logout</a>
+    <a href="/user/token-history">Token History</a>
+  </div>
+
+
+  <div class="main-content">
+    <div class="nav">
+      <div id="ham">
+        <svg width="30" height="30" viewBox="0 0 100 80" fill="#2c3e50" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="10" rx="6"></rect>
+          <rect y="30" width="100" height="10" rx="6"></rect>
+          <rect y="60" width="100" height="10" rx="6"></rect>
+        </svg>
+      </div>
+      <div class="app">
+        <h3>Smart Queue Management</h3>
+        <a href="/user" ><img src="/images/home.svg" style="height: 45px;" alt="home"></a>
+      </div>
+    </div>
+    <h1>Welcome, <%= user.name %>!</h1>
+    <h1>Token History</h1>
+
+<% if (user.tokensRequested.length === 0) { %>
+  <p class="no-token">You have no tokens yet.</p>
+<% } else { %>
+    <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Token Number</th>
+              <th>Status</th>
+              <th>Store</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% user.tokensRequested.forEach(token => { %>
+              <tr  class=" <%= token.status %> ">
+                <td><%= token.tokenNumber %></td>
+                <td class=" <%= token.status %> "><%= token.status %></td>
+                <td><%= token.store ? token.store.name : 'N/A' %></td>
+                <td><%= new Date(token.createdAt).toLocaleString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+    </div>
+<% } %>
+
+
+  <script>
+      const sidebar = document.querySelector(".sidebar");
+      console.log("dom loaded");
+    document.getElementById("ham").addEventListener("click", () => {
+      console.log("hamburger button clicked");
+      sidebar.style.left = 0;
+
+    })
+    document.getElementById("cancelSidebar-button").addEventListener("click", () => {
+      sidebar.style.left = "-100%";
+    })
+  </script>
+  
+
+</body>
+
+</html>
