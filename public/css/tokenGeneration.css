@@ -233,6 +233,11 @@
  .btn-danger {
      background-color: var(--danger);
  }
+.closeScanner{
+    width:unset;
+    padding-left: 1rem;
+    padding-right: 1rem;
+ }
 
  .btn:hover,
  .btn-primary:hover {
