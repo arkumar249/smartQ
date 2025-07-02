@@ -34,7 +34,7 @@ body {
     border-top-right-radius: var(--card-radius);
     border-bottom-right-radius: var(--card-radius);
     box-shadow: var(--shadow);
-    transition: left 0.4s cubic-bezier(.4, 2.08, .55, .44);
+    transition: left 0.4s linear;
     z-index: 200;
 }
 
