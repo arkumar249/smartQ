@@ -236,28 +236,6 @@ Server emits events to rooms:
 
 ---
 
-## 🔒 Security & Production Checklist
-
-* Use strong `JWT_SECRET`
-* Enable HTTPS and secure cookies
-* Set HttpOnly, Secure, SameSite flags
-* Rate-limit auth APIs
-* Validate & sanitize input
-* Restrict CORS (Socket currently allows `*`)
-* Rotate Cloudinary keys if leaked
-
----
-
-## 🧯 Troubleshooting
-
-| Issue                  | Fix                                 |
-| ---------------------- | ----------------------------------- |
-| MongoDB not connecting | Check `MONGO_URI` and DB service    |
-| Socket not connecting  | Use ngrok or check network          |
-| Upload fails           | Verify Cloudinary credentials       |
-| Auth issues            | Ensure cookie is sent with requests |
-
----
 
 ## 📁 Project Structure
 
@@ -274,5 +252,3 @@ public/         — static assets
 ```
 
 ---
-
-**Contributing & License** — Add your preferred license and contribution guidelines here.
